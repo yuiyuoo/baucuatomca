@@ -1,0 +1,534 @@
+@import "tailwindcss";
+
+.game-setup-page {
+  min-height: 100vh;
+  padding: 40px 16px;
+  background: linear-gradient(135deg, #dfe8f7 0%, #cfdcf2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.game-setup-card {
+  width: 100%;
+  max-width: 700px;
+  background: #f7f7f8;
+  border-radius: 18px;
+  padding: 32px 28px 24px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  text-align: center;
+}
+
+.game-setup-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+}
+
+.game-setup-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.game-setup-subtitle {
+  margin: 10px 0 28px;
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.game-setup-field {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.game-setup-field label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.game-setup-field input {
+  width: 100%;
+  height: 48px;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  background: #ececef;
+  padding: 0 14px;
+  font-size: 1rem;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.game-setup-field input::placeholder {
+  color: #81879a;
+}
+
+.player-input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.player-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.player-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 16px 10px;
+  border-radius: 14px;
+  background: #e0e7ff;
+  color: #312e81;
+  font-size: 0.95rem;
+  font-weight: 600;
+  min-width: 90px;
+}
+
+.add-player-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: #020617;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.start-game-btn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: #9a98a3;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.start-game-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.game-setup-note {
+  margin-top: 22px;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+  .game-setup-card {
+    padding: 24px 18px 20px;
+  }
+
+  .game-setup-title {
+    font-size: 1.6rem;
+  }
+}
+
+.error-text {
+  margin-top: 8px;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+
+.remove-player-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 999px;
+  background: #312e81;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.rounds-page {
+  min-height: 100vh;
+  padding: 24px 14px 40px;
+  background: linear-gradient(135deg, #dfe8f7 0%, #cfdcf2 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.rounds-shell {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.rounds-summary-card,
+.rounds-panel,
+.rounds-action-card {
+  border: 1px solid #d2d9e7;
+  background: #f8f8f9;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(39, 54, 87, 0.12);
+}
+
+.rounds-summary-card {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.rounds-page-title {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rounds-page-meta {
+  margin: 0 0 22px;
+  font-size: 1.05rem;
+  color: #64748b;
+}
+
+.player-chip--compact {
+  min-width: auto;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #d8e0fb;
+  color: #5347ff;
+  font-size: 0.95rem;
+}
+
+.rounds-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.rounds-action-card {
+  min-height: 94px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #0f172a;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.rounds-action-card:hover {
+  transform: translateY(-2px);
+}
+
+.rounds-action-card--primary {
+  border-color: #020617;
+  background: #020617;
+  color: #ffffff;
+}
+
+.rounds-action-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.rounds-action-label {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.rounds-panel {
+  min-height: 370px;
+  padding: 22px 24px 30px;
+}
+
+.rounds-panel-title {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rounds-panel-subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.rounds-empty-state {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.rounds-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eceef4;
+  color: #94a3b8;
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.rounds-empty-text {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.rounds-empty-button,
+.delete-game-btn {
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rounds-empty-button {
+  padding: 12px 18px;
+  background: #020617;
+  color: #ffffff;
+}
+
+.rounds-list {
+  margin-top: 22px;
+  display: grid;
+  gap: 14px;
+}
+
+.round-card {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #eef2ff;
+  border: 1px solid #d8e0fb;
+}
+
+.round-card-title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e1b4b;
+}
+
+.round-card-text {
+  margin: 0;
+  color: #475569;
+}
+
+.rounds-footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.delete-game-btn {
+  padding: 14px 18px;
+  background: #e11d48;
+  color: #ffffff;
+}
+
+@media (max-width: 720px) {
+  .rounds-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rounds-page-title {
+    font-size: 1.7rem;
+  }
+
+  .rounds-panel {
+    min-height: 300px;
+    padding: 20px 18px 24px;
+  }
+}
+
+.add-round-shell {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 8px 0 36px;
+}
+
+.back-link {
+  border: none;
+  background: transparent;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 18px;
+  padding: 10px 12px;
+}
+
+.add-round-card {
+  border: 1px solid #d2d9e7;
+  background: #f8f8f9;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(39, 54, 87, 0.12);
+  padding: 22px 22px 24px;
+}
+
+.add-round-title {
+  margin: 0 0 8px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.add-round-subtitle {
+  margin: 0 0 24px;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.add-round-section {
+  margin-bottom: 22px;
+}
+
+.add-round-label,
+.add-round-heading {
+  display: block;
+  margin: 0 0 12px;
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.add-round-select,
+.round-player-input {
+  width: 100%;
+  height: 48px;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  background: #ececef;
+  padding: 0 14px;
+  font-size: 1rem;
+  color: #111827;
+  box-sizing: border-box;
+}
+
+.add-round-divider {
+  height: 1px;
+  background: #d8dee8;
+  margin: 18px 0 20px;
+}
+
+.add-round-help {
+  margin: 0 0 18px;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.round-player-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.round-player-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 130px;
+  align-items: center;
+  gap: 18px;
+}
+
+.round-player-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.round-total-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0 22px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  background: #f1f5f9;
+}
+
+.round-total-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.round-total-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.save-round-btn {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: #020617;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .rounds-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rounds-page-title {
+    font-size: 1.7rem;
+  }
+
+  .rounds-panel {
+    min-height: 300px;
+    padding: 20px 18px 24px;
+  }
+
+  .add-round-title {
+    font-size: 1.6rem;
+  }
+
+  .round-player-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .round-total-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
