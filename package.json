@@ -2,7 +2,7 @@
   "name": "baucuatomca",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://gitname.github.io/baucuatomca",
+  "homepage": "https://yuiyuoo.github.io/baucuatomca",
   "type": "module",
   "scripts": {
     "predeploy": "npm run build",
