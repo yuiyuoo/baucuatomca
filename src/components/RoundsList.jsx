@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
-import { clearGameSession, loadGameSession } from '../lib/gameSession';
+import { clearGameSession, loadGameSession, saveGameSession } from '../lib/gameSession';
 
 export function RoundsList() {
     const navigate = useNavigate();
     const session = loadGameSession();
     const rounds = Array.isArray(session?.rounds) ? session.rounds : [];
+    const [playerName, setPlayerName] = useState('');
+    const [showAddPlayer, setShowAddPlayer] = useState(false);
+    const [playerError, setPlayerError] = useState('');
 
     if (!session || !Array.isArray(session.players) || session.players.length < 2) {
         return <Navigate to="/" replace />;
@@ -13,6 +17,42 @@ export function RoundsList() {
     const handleDeleteGame = () => {
         clearGameSession();
         navigate('/');
+    };
+
+    const handleDeleteRound = (roundId) => {
+        saveGameSession({
+            ...session,
+            rounds: rounds.filter((round) => round.id !== roundId),
+        });
+        navigate('/rounds');
+    };
+
+    const handleAddPlayer = () => {
+        const trimmedName = playerName.trim();
+
+        if (!trimmedName) {
+            setPlayerError('Player name is required.');
+            return;
+        }
+
+        const duplicate = session.players.some(
+            (player) => player.toLowerCase() === trimmedName.toLowerCase()
+        );
+
+        if (duplicate) {
+            setPlayerError('This player already exists.');
+            return;
+        }
+
+        saveGameSession({
+            ...session,
+            players: [...session.players, trimmedName],
+        });
+
+        setPlayerName('');
+        setPlayerError('');
+        setShowAddPlayer(false);
+        navigate('/rounds');
     };
 
     return (
@@ -26,13 +66,52 @@ export function RoundsList() {
                         {session.players.length} players • {rounds.length} rounds
                     </p>
 
-                    <div className="player-list">
-                        {session.players.map((player, index) => (
-                            <span key={`${player}-${index}`} className="player-chip player-chip--compact">
-                                {player}
-                            </span>
-                        ))}
+                    <div className="rounds-summary-footer">
+                        <div className="player-list">
+                            {session.players.map((player, index) => (
+                                <span key={`${player}-${index}`} className="player-chip player-chip--compact">
+                                    {player}
+                                </span>
+                            ))}
+                        </div>
+
+                        <button
+                            type="button"
+                            className="rounds-add-player-btn"
+                            onClick={() => {
+                                setShowAddPlayer((current) => !current);
+                                setPlayerError('');
+                            }}
+                        >
+                            + Add Player
+                        </button>
                     </div>
+
+                    {showAddPlayer && (
+                        <div className="rounds-add-player-row">
+                            <input
+                                type="text"
+                                className="rounds-add-player-input"
+                                placeholder="Enter player name"
+                                value={playerName}
+                                onChange={(event) => setPlayerName(event.target.value)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        handleAddPlayer();
+                                    }
+                                }}
+                            />
+                            <button
+                                type="button"
+                                className="rounds-add-player-save"
+                                onClick={handleAddPlayer}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    )}
+
+                    {playerError && <p className="error-text">{playerError}</p>}
                 </section>
 
                 <section className="rounds-actions-grid">
@@ -88,8 +167,56 @@ export function RoundsList() {
                         <div className="rounds-list">
                             {rounds.map((round, index) => (
                                 <article key={round.id ?? index} className="round-card">
-                                    <h3 className="round-card-title">Round {index + 1}</h3>
-                                    <p className="round-card-text">{round?.summary ?? 'Round saved'}</p>
+                                    <div className="round-card-header">
+                                        <div className="round-card-banker">
+                                            <span className="round-index-badge">{index + 1}</span>
+                                            <div>
+                                                <p className="round-card-label">Banker</p>
+                                                <h3 className="round-card-title">{round.banker}</h3>
+                                            </div>
+                                        </div>
+
+                                        <div className="round-card-actions">
+                                            <button
+                                                type="button"
+                                                className="round-card-icon-btn"
+                                                onClick={() => navigate('/add-round', {
+                                                    state: { roundId: round.id }
+                                                })}
+                                                aria-label="Edit round"
+                                                title="Edit round"
+                                            >
+                                                ✎
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="round-card-icon-btn round-card-icon-btn--danger"
+                                                onClick={() => handleDeleteRound(round.id)}
+                                                aria-label="Delete round"
+                                                title="Delete round"
+                                            >
+                                                🗑
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="round-result-list">
+                                        {round.results?.map((result) => {
+                                            const amount = Number(result.amount) || 0;
+                                            const positive = amount >= 0;
+
+                                            return (
+                                                <div key={`${round.id}-${result.player}`} className="round-result-row">
+                                                    <span className="round-result-player">{result.player}</span>
+                                                    <span
+                                                        className={`round-result-amount ${positive ? 'round-result-amount--positive' : 'round-result-amount--negative'}`}
+                                                    >
+                                                        {positive ? '+' : ''}{amount}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </article>
                             ))}
                         </div>

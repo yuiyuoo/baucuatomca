@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router';
+import { Navigate, useLocation, useNavigate } from 'react-router';
 import { loadGameSession, saveGameSession } from '../lib/gameSession';
 
 export function AddRound() {
+    const location = useLocation();
     const navigate = useNavigate();
     const session = loadGameSession();
 
@@ -10,10 +11,20 @@ export function AddRound() {
         return <Navigate to="/" replace />;
     }
 
-    const [banker, setBanker] = useState(session.players[0]);
+    const editingRound = Array.isArray(session.rounds)
+        ? session.rounds.find((round) => round.id === location.state?.roundId)
+        : null;
+
+    const [banker, setBanker] = useState(editingRound?.banker ?? session.players[0]);
     const [amounts, setAmounts] = useState(() =>
         session.players.reduce((accumulator, player) => {
-            accumulator[player] = '0';
+            const existingAmount = editingRound?.results?.find(
+                (result) => result.player === player
+            )?.amount;
+
+            accumulator[player] = existingAmount !== undefined
+                ? String(existingAmount)
+                : '0';
             return accumulator;
         }, {})
     );
@@ -34,7 +45,7 @@ export function AddRound() {
 
     const handleSaveRound = () => {
         const nextRound = {
-            id: crypto.randomUUID(),
+            id: editingRound?.id ?? crypto.randomUUID(),
             banker,
             results: resultPlayers.map((player) => ({
                 player,
@@ -46,7 +57,11 @@ export function AddRound() {
 
         saveGameSession({
             ...session,
-            rounds: [...(session.rounds ?? []), nextRound],
+            rounds: editingRound
+                ? (session.rounds ?? []).map((round) =>
+                    round.id === editingRound.id ? nextRound : round
+                )
+                : [...(session.rounds ?? []), nextRound],
         });
 
         navigate('/rounds');
@@ -64,7 +79,9 @@ export function AddRound() {
                 </button>
 
                 <section className="add-round-card">
-                    <h1 className="add-round-title">Add New Round</h1>
+                    <h1 className="add-round-title">
+                        {editingRound ? 'Edit Round' : 'Add New Round'}
+                    </h1>
                     <p className="add-round-subtitle">
                         Select a banker and enter amounts for each player
                     </p>
@@ -120,7 +137,7 @@ export function AddRound() {
                         className="save-round-btn"
                         onClick={handleSaveRound}
                     >
-                        Save Round
+                        {editingRound ? 'Update Round' : 'Save Round'}
                     </button>
                 </section>
             </div>
