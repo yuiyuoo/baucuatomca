@@ -12,6 +12,8 @@ export function GameSetup() {
         playerName: '',
         players: '',
     });
+    const canStartGame = players.length >= 2;
+
     const handleAddPlayer = () => {
         const trimmedName = playerName.trim();
         if (!trimmedName) {
@@ -34,7 +36,7 @@ export function GameSetup() {
     };
 
     const handleStartGame = () => {
-        if (players.length < 2) {
+        if (!canStartGame) {
             setErrors((prev) => ({
                 ...prev,
                 players: 'Add at least 2 players before start'
@@ -114,17 +116,17 @@ export function GameSetup() {
 
                 <button
                     type="button"
-                    className="start-game-btn"
+                    className={`start-game-btn ${canStartGame ? 'start-game-btn--ready' : ''}`}
                     onClick={handleStartGame}
-                    disabled={players.length < 2}
+                    disabled={!canStartGame}
                 >
                     Start Game
                 </button>
 
                 <p className="game-setup-note">
-                    {players.length < 2
-                        ? 'Add at least 2 players to start the game'
-                        : `${players.length} players added`}
+                    {canStartGame
+                        ? `${players.length} players added`
+                        : 'Add at least 2 players to start the game'}
                 </p>
             </div>
         </div>
