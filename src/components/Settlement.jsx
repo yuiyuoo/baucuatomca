@@ -12,8 +12,8 @@ export function Settlement() {
 
     const rounds = Array.isArray(session.rounds) ? session.rounds : [];
     const balances = computeBalances(session);
-    const rankedPlayers = rankBalances(balances);
-    const settlementPlan = buildSettlementPlan(balances);
+    const rankedPlayers = rankBalances(balances, session.players);
+    const settlementPlan = buildSettlementPlan(balances, session.players);
     const unsettledPlayers = rankedPlayers.filter(({ balance }) => Math.abs(balance) > 0.0001);
 
     return (
@@ -44,11 +44,11 @@ export function Settlement() {
                     ) : (
                         <div className="settlement-plan-list">
                             {settlementPlan.map((transfer, index) => (
-                                <article key={`${transfer.from}-${transfer.to}-${index}`} className="settlement-plan-card">
+                                <article key={`${transfer.fromId}-${transfer.toId}-${index}`} className="settlement-plan-card">
                                     <div className="settlement-plan-step">{index + 1}</div>
                                     <div className="settlement-plan-details">
                                         <h2 className="settlement-plan-title">
-                                            {transfer.from} pays {transfer.to}
+                                            {transfer.fromName} pays {transfer.toName}
                                         </h2>
                                         <p className="settlement-plan-subtitle">
                                             Settle the balance with one transfer
@@ -67,12 +67,12 @@ export function Settlement() {
                     <section className="settlement-summary">
                         <h2 className="settlement-summary-title">Net Balances</h2>
                         <div className="settlement-summary-list">
-                            {unsettledPlayers.map(({ player, balance }) => {
+                            {unsettledPlayers.map(({ playerId, playerName, balance }) => {
                                 const positive = balance >= 0;
 
                                 return (
-                                    <div key={player} className="settlement-summary-row">
-                                        <span className="settlement-summary-player">{player}</span>
+                                    <div key={playerId} className="settlement-summary-row">
+                                        <span className="settlement-summary-player">{playerName}</span>
                                         <span
                                             className={`settlement-summary-amount ${positive ? 'score-amount--positive' : 'score-amount--negative'}`}
                                         >

@@ -3,7 +3,7 @@ export function computeBalances(session) {
   const rounds = Array.isArray(session?.rounds) ? session.rounds : [];
 
   const balances = players.reduce((accumulator, player) => {
-    accumulator[player] = 0;
+    accumulator[player.id] = 0;
     return accumulator;
   }, {});
 
@@ -12,30 +12,38 @@ export function computeBalances(session) {
 
     round.results?.forEach((result) => {
       const amount = Number(result.amount) || 0;
-      balances[result.player] = (balances[result.player] ?? 0) + amount;
+      balances[result.playerId] = (balances[result.playerId] ?? 0) + amount;
       bankerNet -= amount;
     });
 
-    balances[round.banker] = (balances[round.banker] ?? 0) + bankerNet;
+    balances[round.bankerId] = (balances[round.bankerId] ?? 0) + bankerNet;
   });
 
   return balances;
 }
 
-export function rankBalances(balances) {
+export function rankBalances(balances, players = []) {
   return Object.entries(balances)
-    .map(([player, balance]) => ({ player, balance }))
+    .map(([playerId, balance]) => ({
+      playerId,
+      balance,
+      playerName: players.find((player) => player.id === playerId)?.name ?? 'Unknown player',
+    }))
     .sort((left, right) => right.balance - left.balance);
 }
 
-export function buildSettlementPlan(balances) {
-  const creditors = rankBalances(balances)
+export function buildSettlementPlan(balances, players = []) {
+  const creditors = rankBalances(balances, players)
     .filter(({ balance }) => balance > 0.0001)
-    .map(({ player, balance }) => ({ player, amount: balance }));
+    .map(({ playerId, playerName, balance }) => ({ playerId, playerName, amount: balance }));
 
-  const debtors = rankBalances(balances)
+  const debtors = rankBalances(balances, players)
     .filter(({ balance }) => balance < -0.0001)
-    .map(({ player, balance }) => ({ player, amount: Math.abs(balance) }));
+    .map(({ playerId, playerName, balance }) => ({
+      playerId,
+      playerName,
+      amount: Math.abs(balance),
+    }));
 
   const transfers = [];
   let creditorIndex = 0;
@@ -47,8 +55,10 @@ export function buildSettlementPlan(balances) {
     const amount = Math.min(creditor.amount, debtor.amount);
 
     transfers.push({
-      from: debtor.player,
-      to: creditor.player,
+      fromId: debtor.playerId,
+      fromName: debtor.playerName,
+      toId: creditor.playerId,
+      toName: creditor.playerName,
       amount,
     });
 

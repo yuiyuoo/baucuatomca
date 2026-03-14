@@ -12,7 +12,7 @@ export function Scores() {
 
     const rounds = Array.isArray(session.rounds) ? session.rounds : [];
     const balances = computeBalances(session);
-    const rankedPlayers = rankBalances(balances);
+    const rankedPlayers = rankBalances(balances, session.players);
 
     return (
         <div className="rounds-page">
@@ -32,18 +32,18 @@ export function Scores() {
                     </p>
 
                     <div className="scores-list">
-                        {rankedPlayers.map(({ player, balance }, index) => {
+                        {rankedPlayers.map(({ playerId, playerName, balance }, index) => {
                             const positive = balance >= 0;
 
                             return (
                                 <article
-                                    key={player}
+                                    key={playerId}
                                     className={`score-row ${positive ? 'score-row--positive' : 'score-row--negative'}`}
                                 >
                                     <div className="score-row-left">
                                         <div className="score-rank">{index + 1}</div>
                                         <div>
-                                            <h2 className="score-player-name">{player}</h2>
+                                            <h2 className="score-player-name">{playerName}</h2>
                                             <p className="score-player-status">
                                                 {positive ? 'Should receive' : 'Should pay'}
                                             </p>

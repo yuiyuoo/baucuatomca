@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router';
-import { clearGameSession, loadGameSession, saveGameSession } from '../lib/gameSession';
+import { useGameSession } from '../hooks/useGameSession';
 
 export function RoundsList() {
     const navigate = useNavigate();
-    const session = loadGameSession();
+    const { session, resetSession, updateSession } = useGameSession();
     const rounds = Array.isArray(session?.rounds) ? session.rounds : [];
     const [playerName, setPlayerName] = useState('');
     const [showAddPlayer, setShowAddPlayer] = useState(false);
@@ -15,16 +15,15 @@ export function RoundsList() {
     }
 
     const handleDeleteGame = () => {
-        clearGameSession();
+        resetSession();
         navigate('/');
     };
 
     const handleDeleteRound = (roundId) => {
-        saveGameSession({
-            ...session,
-            rounds: rounds.filter((round) => round.id !== roundId),
-        });
-        navigate('/rounds');
+        updateSession((currentSession) => ({
+            ...currentSession,
+            rounds: (currentSession?.rounds ?? []).filter((round) => round.id !== roundId),
+        }));
     };
 
     const handleAddPlayer = () => {
@@ -36,7 +35,7 @@ export function RoundsList() {
         }
 
         const duplicate = session.players.some(
-            (player) => player.toLowerCase() === trimmedName.toLowerCase()
+            (player) => player.name.toLowerCase() === trimmedName.toLowerCase()
         );
 
         if (duplicate) {
@@ -44,15 +43,20 @@ export function RoundsList() {
             return;
         }
 
-        saveGameSession({
-            ...session,
-            players: [...session.players, trimmedName],
-        });
+        updateSession((currentSession) => ({
+            ...currentSession,
+            players: [
+                ...(currentSession?.players ?? []),
+                {
+                    id: `player-${crypto.randomUUID()}`,
+                    name: trimmedName,
+                },
+            ],
+        }));
 
         setPlayerName('');
         setPlayerError('');
         setShowAddPlayer(false);
-        navigate('/rounds');
     };
 
     return (
@@ -68,9 +72,9 @@ export function RoundsList() {
 
                     <div className="rounds-summary-footer">
                         <div className="player-list">
-                            {session.players.map((player, index) => (
-                                <span key={`${player}-${index}`} className="player-chip player-chip--compact">
-                                    {player}
+                            {session.players.map((player) => (
+                                <span key={player.id} className="player-chip player-chip--compact">
+                                    {player.name}
                                 </span>
                             ))}
                         </div>
@@ -172,7 +176,9 @@ export function RoundsList() {
                                             <span className="round-index-badge">{index + 1}</span>
                                             <div>
                                                 <p className="round-card-label">Banker</p>
-                                                <h3 className="round-card-title">{round.banker}</h3>
+                                                <h3 className="round-card-title">
+                                                    {session.players.find((player) => player.id === round.bankerId)?.name ?? 'Unknown player'}
+                                                </h3>
                                             </div>
                                         </div>
 
@@ -180,9 +186,7 @@ export function RoundsList() {
                                             <button
                                                 type="button"
                                                 className="round-card-icon-btn"
-                                                onClick={() => navigate('/add-round', {
-                                                    state: { roundId: round.id }
-                                                })}
+                                                onClick={() => navigate(`/add-round/${round.id}`)}
                                                 aria-label="Edit round"
                                                 title="Edit round"
                                             >
@@ -206,8 +210,10 @@ export function RoundsList() {
                                             const positive = amount >= 0;
 
                                             return (
-                                                <div key={`${round.id}-${result.player}`} className="round-result-row">
-                                                    <span className="round-result-player">{result.player}</span>
+                                                <div key={`${round.id}-${result.playerId}`} className="round-result-row">
+                                                    <span className="round-result-player">
+                                                        {session.players.find((player) => player.id === result.playerId)?.name ?? 'Unknown player'}
+                                                    </span>
                                                     <span
                                                         className={`round-result-amount ${positive ? 'round-result-amount--positive' : 'round-result-amount--negative'}`}
                                                     >

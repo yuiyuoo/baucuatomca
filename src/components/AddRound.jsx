@@ -1,68 +1,65 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router';
-import { loadGameSession, saveGameSession } from '../lib/gameSession';
+import { Navigate, useNavigate, useParams } from 'react-router';
+import { useGameSession } from '../hooks/useGameSession';
 
 export function AddRound() {
-    const location = useLocation();
+    const { roundId } = useParams();
     const navigate = useNavigate();
-    const session = loadGameSession();
-
-    if (!session || !Array.isArray(session.players) || session.players.length < 2) {
-        return <Navigate to="/" replace />;
-    }
-
-    const editingRound = Array.isArray(session.rounds)
-        ? session.rounds.find((round) => round.id === location.state?.roundId)
-        : null;
-
-    const [banker, setBanker] = useState(editingRound?.banker ?? session.players[0]);
+    const { session, updateSession } = useGameSession();
+    const players = Array.isArray(session?.players) ? session.players : [];
+    const rounds = Array.isArray(session?.rounds) ? session.rounds : [];
+    const editingRound = rounds.find((round) => round.id === roundId) ?? null;
+    const [bankerId, setBankerId] = useState(editingRound?.bankerId ?? players[0]?.id ?? '');
     const [amounts, setAmounts] = useState(() =>
-        session.players.reduce((accumulator, player) => {
+        players.reduce((accumulator, player) => {
             const existingAmount = editingRound?.results?.find(
-                (result) => result.player === player
+                (result) => result.playerId === player.id
             )?.amount;
 
-            accumulator[player] = existingAmount !== undefined
+            accumulator[player.id] = existingAmount !== undefined
                 ? String(existingAmount)
                 : '0';
             return accumulator;
         }, {})
     );
 
-    const resultPlayers = session.players.filter((player) => player !== banker);
+    if (!session || players.length < 2) {
+        return <Navigate to="/" replace />;
+    }
+
+    const resultPlayers = players.filter((player) => player.id !== bankerId);
 
     const handleAmountChange = (player, value) => {
         setAmounts((currentAmounts) => ({
             ...currentAmounts,
-            [player]: value,
+            [player.id]: value,
         }));
     };
 
     const totalSum = resultPlayers.reduce((total, player) => {
-        const amount = Number(amounts[player] || 0);
+        const amount = Number(amounts[player.id] || 0);
         return total + (Number.isNaN(amount) ? 0 : amount);
     }, 0);
 
     const handleSaveRound = () => {
         const nextRound = {
             id: editingRound?.id ?? crypto.randomUUID(),
-            banker,
+            bankerId,
             results: resultPlayers.map((player) => ({
-                player,
-                amount: Number(amounts[player] || 0),
+                playerId: player.id,
+                amount: Number(amounts[player.id] || 0),
             })),
             total: totalSum,
-            summary: `${banker} banked round with ${resultPlayers.length} player results`,
         };
 
-        saveGameSession({
-            ...session,
+        updateSession((currentSession) => ({
+            ...currentSession,
             rounds: editingRound
-                ? (session.rounds ?? []).map((round) =>
+                ? (currentSession?.rounds ?? []).map((round) =>
                     round.id === editingRound.id ? nextRound : round
                 )
-                : [...(session.rounds ?? []), nextRound],
-        });
+                : [...(currentSession?.rounds ?? []), nextRound],
+        }));
 
         navigate('/rounds');
     };
@@ -93,12 +90,12 @@ export function AddRound() {
                         <select
                             id="banker-select"
                             className="add-round-select"
-                            value={banker}
-                            onChange={(event) => setBanker(event.target.value)}
+                            value={bankerId}
+                            onChange={(event) => setBankerId(event.target.value)}
                         >
-                            {session.players.map((player) => (
-                                <option key={player} value={player}>
-                                    {player}
+                            {players.map((player) => (
+                                <option key={player.id} value={player.id}>
+                                    {player.name}
                                 </option>
                             ))}
                         </select>
@@ -114,12 +111,12 @@ export function AddRound() {
 
                         <div className="round-player-grid">
                             {resultPlayers.map((player) => (
-                                <div key={player} className="round-player-row">
-                                    <span className="round-player-name">{player}</span>
+                                <div key={player.id} className="round-player-row">
+                                    <span className="round-player-name">{player.name}</span>
                                     <input
                                         type="number"
                                         className="round-player-input"
-                                        value={amounts[player]}
+                                        value={amounts[player.id]}
                                         onChange={(event) => handleAmountChange(player, event.target.value)}
                                     />
                                 </div>

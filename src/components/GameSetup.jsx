@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { loadGameSession, saveGameSession } from '../lib/gameSession';
+import { useGameSession } from '../hooks/useGameSession';
 
 export function GameSetup() {
-    const existingSession = loadGameSession();
     const navigate = useNavigate();
-    const [gameName, setGameName] = useState(existingSession?.gameName ?? '');
+    const { session, replaceSession } = useGameSession();
+    const [gameName, setGameName] = useState(session?.gameName ?? '');
     const [playerName, setPlayerName] = useState('');
-    const [players, setPlayers] = useState(existingSession?.players ?? []);
+    const [players, setPlayers] = useState(session?.players ?? []);
     const [errors, setErrors] = useState({
         playerName: '',
         players: '',
@@ -22,7 +22,7 @@ export function GameSetup() {
         }
 
         const duplicate = players.some(
-            (player) => player.toLowerCase() === trimmedName.toLowerCase()
+            (player) => player.name.toLowerCase() === trimmedName.toLowerCase()
         );
 
         if (duplicate) {
@@ -30,7 +30,13 @@ export function GameSetup() {
             return;
         }
 
-        setPlayers((currentPlayers) => [...currentPlayers, trimmedName]);
+        setPlayers((currentPlayers) => [
+            ...currentPlayers,
+            {
+                id: `player-${crypto.randomUUID()}`,
+                name: trimmedName,
+            },
+        ]);
         setPlayerName('');
         setErrors((prev) => ({ ...prev, playerName: '', players: '' }));
     };
@@ -43,7 +49,8 @@ export function GameSetup() {
             }));
             return;
         }
-        saveGameSession({
+        replaceSession({
+            ...(session ?? {}),
             gameName: gameName.trim(),
             players,
         });
@@ -99,8 +106,8 @@ export function GameSetup() {
                         <label>Players</label>
                         <div className="player-list">
                             {players.map((player, index) => (
-                                <span key={`${player}-${index}`} className="player-chip">
-                                    <span>{player}</span>
+                                <span key={player.id} className="player-chip">
+                                    <span>{player.name}</span>
                                     <button
                                         type="button"
                                         className="remove-player-btn"
